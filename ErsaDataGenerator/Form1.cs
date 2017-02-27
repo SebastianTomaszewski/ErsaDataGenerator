@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using MetroFramework;
 using MetroFramework.Forms;
  
 
@@ -36,29 +37,38 @@ namespace ErsaDataGenerator
         public string DateStart { get; set; }
         public string DateEnd { get; set; }
 
-        public string ConnStr => GenerateConnectionString(SqlUser, SqlPass, SqlIp, DB);
+      //  public string ConnStr => GenerateConnectionString(SqlUser, SqlPass, SqlIp, DB);
        
 
         private void metroButton1_Click(object sender, EventArgs e)
         {
 
-            DateStart = metroDateTime1.Value.ToDateString();
-            DateEnd = metroDateTime2.Value.ToDateString();
-           
-
-           // MessageBox.Show($@"Od {DateStart} do {DateEnd}");
-
-            ClsGeneral dupa = new ClsGeneral();
-
-
-   //         MessageBox.Show(get_one_text_value());
-
-           dupa.GenerateExcel(ConfigFilePath, GetData());
-
-
-
+            GetDataAndCreateFile("dupa",metroDateTime1.Value.ToDateString(), metroDateTime2.Value.ToDateString());
 
         }
+
+
+
+        private void GetDataAndCreateFile(string proc,string dateFrom,string dateTo)
+        {
+            try
+            {
+                var excel = new Excel();
+                var sql = new ConnectionClass(SqlIp, DB, SqlUser, SqlPass);
+                excel.GenerateExcel(sql.GetDataQueryTable(SqlText));
+            }
+            catch (Exception ex)
+            {
+                MetroMessageBox.Show(this, ex.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+
+
+
+
+
 
         #region private variables
 
@@ -86,102 +96,80 @@ namespace ErsaDataGenerator
 
         #endregion
 
-        public DataTable GetDt()
-        {
+        //public DataTable GetDt()
+        //{
 
            
            
 
 
-                try
-                {
-                    if (sqlconn.State != ConnectionState.Closed) sqlconn.Close();
-                    sqlconn.ConnectionString = "Data Source=" + sqlip + ";Persist Security Info=True;User ID=" + sqluser + ";Password=" + sqlpass + ";Database=" + db;
-                    command.CommandText = sqltext;
-                    command.Connection = sqlconn;
-                    da.SelectCommand = command;
-                    var getDt = new DataTable();
-                    sqlconn.Open();
-                    da.Fill(getDt);
-                    sqlconn.Close();
-                    return getDt;
-                }
-                catch (Exception ex)
-                {
-                    sqlconn.Close();
-                    throw new Exception("blad wykonania GetDt " + command.CommandText + " error: " + ex.Message);
-                }
-            }
+        //        try
+        //        {
+        //            if (sqlconn.State != ConnectionState.Closed) sqlconn.Close();
+        //            sqlconn.ConnectionString = "Data Source=" + sqlip + ";Persist Security Info=True;User ID=" + sqluser + ";Password=" + sqlpass + ";Database=" + db;
+        //            command.CommandText = sqltext;
+        //            command.Connection = sqlconn;
+        //            da.SelectCommand = command;
+        //            var getDt = new DataTable();
+        //            sqlconn.Open();
+        //            da.Fill(getDt);
+        //            sqlconn.Close();
+        //            return getDt;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            sqlconn.Close();
+        //            throw new Exception("blad wykonania GetDt " + command.CommandText + " error: " + ex.Message);
+        //        }
+        //    }
 
-        public DataTable GetData()
-        {
-            SqlConnection conn = new SqlConnection(ConnStr);
-            conn.Open();
-            string query = SqlText;
-            SqlCommand cmd = new SqlCommand(query, conn);
+       
 
-            DataTable dt = new DataTable("test");
-            dt.Load(cmd.ExecuteReader());
-            return dt;
-        }
+       
 
-        private string GenerateConnectionString(string user, string password, string host, string catalog)
-        {
-            var sqlBuilder = new SqlConnectionStringBuilder
-            {
-                Password = password,
-                UserID = user,
-                DataSource = host,
-                InitialCatalog = catalog
-            };
+        //public DataTable PullData()
+        //{
+        //    var dataTable = new DataTable();
+        //    string connString = ConnStr;
+        //    string query = SqlText;
 
-            return sqlBuilder.ToString();
-        }
+        //    SqlConnection conn = new SqlConnection(connString);
+        //    SqlCommand cmd = new SqlCommand(query, conn);
+        //    conn.Open();
 
-        public DataTable PullData()
-        {
-            var dataTable = new DataTable();
-            string connString = ConnStr;
-            string query = SqlText;
+        //    // create data adapter
+        //    SqlDataAdapter da = new SqlDataAdapter(cmd);
+        //    // this will query your database and return the result to your datatable
+        //    da.Fill(dataTable);
+        //    conn.Close();
+        //    da.Dispose();
 
-            SqlConnection conn = new SqlConnection(connString);
-            SqlCommand cmd = new SqlCommand(query, conn);
-            conn.Open();
-
-            // create data adapter
-            SqlDataAdapter da = new SqlDataAdapter(cmd);
-            // this will query your database and return the result to your datatable
-            da.Fill(dataTable);
-            conn.Close();
-            da.Dispose();
-
-            return dataTable;
-        }
+        //    return dataTable;
+        //}
 
 
-        public string get_one_text_value()
-        {
-            
-                try
-                {
-                    if (sqlconn.State != ConnectionState.Closed) sqlconn.Close();
-                    sqlconn.ConnectionString = "Data Source=" + sqlip + ";Persist Security Info=True;User ID=" + sqluser + ";Password=" + sqlpass + ";Database=" + db;
-                    command.CommandText = sqltext;
-                    command.Connection = sqlconn;
-                    da.SelectCommand = command;
-                    DataTable GetDt = new DataTable("Test");
-                    sqlconn.Open();
-                    da.Fill(GetDt);
-                    sqlconn.Close();
-                    get_one_text_value_string = GetDt.Rows[0][0].ToString();
-                    return get_one_text_value_string;
-                }
-                catch (Exception ex)
-                {
-                    sqlconn.Close();
-                    throw new Exception("blad wykonania get_one_text_value " + command.CommandText + " error: " + ex.Message);
-                }
-            }
+        //public string get_one_text_value()
+        //{        
+        //        try
+        //        {
+        //            if (sqlconn.State != ConnectionState.Closed) sqlconn.Close();
+        //            sqlconn.ConnectionString = "Data Source=" + sqlip + ";Persist Security Info=True;User ID=" + sqluser + ";Password=" + sqlpass + ";Database=" + db;
+        //            command.CommandText = sqltext;
+        //            command.Connection = sqlconn;
+        //            da.SelectCommand = command;
+        //            DataTable GetDt = new DataTable("Test");
+        //            sqlconn.Open();
+        //            da.Fill(GetDt);
+        //            sqlconn.Close();
+        //            get_one_text_value_string = GetDt.Rows[0][0].ToString();
+        //            return get_one_text_value_string;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            sqlconn.Close();
+        //            throw new Exception("blad wykonania get_one_text_value " + command.CommandText + " error: " + ex.Message);
+        //        }
+        //    }
           
 
 
